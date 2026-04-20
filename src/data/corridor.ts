@@ -51,33 +51,35 @@ export const CORRIDOR_ROUTES: SegmentRoute[] = [
   {
     from: "I1",
     to: "I2",
-    // Davitashen Bridge → Arabkir junction: road goes ESE then dips slightly south
+    // Davitashen Bridge → Arabkir junction.
+    // Road descends SE from the bridge then levels onto the main arterial.
+    // Waypoints stay strictly between the two endpoint latitudes (no south dip).
     waypoints: [
       [44.4933, 40.2096],
-      [44.4964, 40.2061],
-      [44.4972, 40.2049],
+      [44.4958, 40.2079],
       [44.4982, 40.2061],
     ],
   },
   {
     from: "I2",
     to: "I3",
-    // Arabkir junction → Komitas Ave: follows main road east with gentle SE curve
+    // Arabkir junction → Komitas Ave: mostly east, gentle SE.
+    // Single intermediate keeps lat between 40.2056–40.2061 — no south overshoot.
     waypoints: [
       [44.4982, 40.2061],
-      [44.5008, 40.2063],
-      [44.5022, 40.2042],
+      [44.5020, 40.2058],
       [44.5057, 40.2056],
     ],
   },
   {
     from: "I3",
     to: "I4",
-    // Komitas Ave eastward toward Zeytun: mostly east along lat ~40.207
+    // Komitas Ave eastward toward Zeytun: east with slight north drift,
+    // matching the avenue's actual bearing in OSM.
     waypoints: [
       [44.5057, 40.2056],
-      [44.5110, 40.2068],
-      [44.5150, 40.2068],
+      [44.5110, 40.2063],
+      [44.5150, 40.2066],
       [44.5180, 40.2066],
     ],
   },
