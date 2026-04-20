@@ -51,20 +51,24 @@ export const CORRIDOR_ROUTES: SegmentRoute[] = [
   {
     from: "I1",
     to: "I2",
-    // Davitashen Bridge → Arabkir junction.
-    // Road descends SE from the bridge then levels onto the main arterial.
-    // Waypoints stay strictly between the two endpoint latitudes (no south dip).
+    // Davitashen Bridge → Leningradyan × Halabyan.
+    // Road follows OSM Way 41261023 (bridge) then Ways 515943719 + 221307820
+    // (Vagharsh Vagharshyan street) descending SE to the Arabkir junction.
+    // All intermediates are actual OSM node coordinates.
     waypoints: [
-      [44.4933, 40.2096],
-      [44.4958, 40.2079],
-      [44.4982, 40.2061],
+      [44.4933, 40.2096], // I1 — on bridge (~mid-span)
+      [44.4944, 40.2083], // bridge node (OSM 41261023 mid)
+      [44.4949, 40.2077], // bridge SE end / Vagharsh Vagharshyan start
+      [44.4957, 40.2069], // Vagharsh Vagharshyan (OSM 515943719 node)
+      [44.4964, 40.2061], // Vagharsh Vagharshyan (OSM 221307820) — reaches I2 lat
+      [44.4982, 40.2061], // I2
     ],
   },
   {
     from: "I2",
     to: "I3",
-    // Arabkir junction → Komitas Ave: mostly east, gentle SE.
-    // Single intermediate keeps lat between 40.2056–40.2061 — no south overshoot.
+    // Leningradyan × Halabyan → Halabyan × Komitas: follows Halabyan street east.
+    // Nearly flat — lat drops only ~5 m over 565 m horizontal.
     waypoints: [
       [44.4982, 40.2061],
       [44.5020, 40.2058],
@@ -74,20 +78,22 @@ export const CORRIDOR_ROUTES: SegmentRoute[] = [
   {
     from: "I3",
     to: "I4",
-    // Komitas Ave eastward toward Zeytun: east with slight north drift,
-    // matching the avenue's actual bearing in OSM.
+    // Halabyan × Komitas → Komitas × Zeytun: follows Komitas Avenue east.
+    // The avenue curves NE first (peak lat ~40.2070 near lng 44.5105) then
+    // bends SE back to I4. Intermediates from OSM Way 481335956 nodes.
     waypoints: [
-      [44.5057, 40.2056],
-      [44.5110, 40.2063],
-      [44.5150, 40.2066],
-      [44.5180, 40.2066],
+      [44.5057, 40.2056], // I3
+      [44.5075, 40.2065], // Komitas NE curve starts (OSM node)
+      [44.5105, 40.2070], // Komitas peak latitude (OSM node)
+      [44.5138, 40.2067], // Komitas SE return (OSM node)
+      [44.5180, 40.2066], // I4
     ],
   },
 ];
 
-// Corridor view: centred between I2 and I3, pitched and rotated to show
-// the full arterial as a diagonal from lower-left to upper-right.
-export const CORRIDOR_CENTER: LngLat = [44.5057, 40.2075];
-export const CORRIDOR_ZOOM = 15.8;
-export const CORRIDOR_PITCH = 60;
-export const CORRIDOR_BEARING = 15;
+// Corridor view: centred on the I2-I3 midpoint, pitched to show the full
+// arterial. Bearing ~20 matches the corridor's overall NE orientation.
+export const CORRIDOR_CENTER: LngLat = [44.5065, 40.2063];
+export const CORRIDOR_ZOOM = 15.6;
+export const CORRIDOR_PITCH = 55;
+export const CORRIDOR_BEARING = 20;
