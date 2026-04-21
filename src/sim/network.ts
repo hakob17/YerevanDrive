@@ -96,14 +96,8 @@ export function buildNetwork(): Network {
     };
   });
 
-  // For each intersection, compute the forward (main-axis) direction vector.
-  const forward: { x: number; y: number }[] = centers.map((c, i) => {
-    const prev = centers[i - 1] ?? centers[i];
-    const next = centers[i + 1] ?? centers[i];
-    return unitVec(next.x - prev.x, next.y - prev.y);
-  });
-
-  // Pre-convert CORRIDOR_ROUTES waypoints to local metres.
+  // Pre-convert CORRIDOR_ROUTES waypoints to local metres first — we need
+  // the polyline tangents in order to orient each intersection correctly.
   // Key: "I1>I2" → [{x,y}…]
   const routeMap = new Map<string, { x: number; y: number }[]>();
   for (const seg of CORRIDOR_ROUTES) {
@@ -113,6 +107,45 @@ export function buildNetwork(): Network {
     const revKey = `${seg.to}>${seg.from}`;
     routeMap.set(revKey, toLocal([...seg.waypoints].reverse(), originMerc, metersPerMerc));
   }
+
+  // For each intersection, compute the forward (main-axis) direction vector.
+  // Terminal intersections use centre-to-centre direction.
+  // Intermediate intersections use the average of the road tangents:
+  //   in-tangent  = last segment of the incoming route polyline
+  //   out-tangent = first segment of the outgoing route polyline
+  // This aligns stop bars with the actual street geometry instead of the
+  // straight-line bearing between intersection centres.
+  const forward: { x: number; y: number }[] = centers.map((c, i) => {
+    const prevCenter = centers[i - 1];
+    const nextCenter = centers[i + 1];
+
+    if (!prevCenter || !nextCenter) {
+      // Terminal: fall back to centre-to-centre.
+      const prev = centers[i - 1] ?? centers[i];
+      const next = centers[i + 1] ?? centers[i];
+      return unitVec(next.x - prev.x, next.y - prev.y);
+    }
+
+    // In-tangent: direction of the last segment of the route arriving here.
+    const inRoute = routeMap.get(`${prevCenter.def.id}>${c.def.id}`);
+    let inDx = 0, inDy = 0;
+    if (inRoute && inRoute.length >= 2) {
+      const a = inRoute[inRoute.length - 2], b = inRoute[inRoute.length - 1];
+      const d = unitVec(b.x - a.x, b.y - a.y);
+      inDx = d.x; inDy = d.y;
+    }
+
+    // Out-tangent: direction of the first segment of the route departing here.
+    const outRoute = routeMap.get(`${c.def.id}>${nextCenter.def.id}`);
+    let outDx = 0, outDy = 0;
+    if (outRoute && outRoute.length >= 2) {
+      const a = outRoute[0], b = outRoute[1];
+      const d = unitVec(b.x - a.x, b.y - a.y);
+      outDx = d.x; outDy = d.y;
+    }
+
+    return unitVec(inDx + outDx, inDy + outDy);
+  });
 
   // Build intersections.
   for (let i = 0; i < centers.length; i++) {
